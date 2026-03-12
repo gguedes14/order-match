@@ -24,7 +24,7 @@ app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
   });
 });
 
-app.listen(2500, () => {
+app.listen(3000, () => {
   // eslint-disable-next-line no-console
-  console.info('Server started on port 2500 🚀');
+  console.info('Server started on port 3000 🚀');
 });

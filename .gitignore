@@ -11,7 +11,3 @@ env.json
 uploads/*
 !uploads/.gitkeep
 .DS_Store
-
-/src/database
-
-/src/database

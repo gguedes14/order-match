@@ -24,6 +24,34 @@ model User {
   posts     Post[]
 }
 
+model Order {
+  id        String   @id @default(uuid())
+
+  type      OrderType
+  price     Decimal
+  amount    Decimal
+  remaining Decimal
+
+  status    OrderStatus
+
+  userId    String
+  user      User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+enum OrderType {
+  BUY
+  SELL
+}
+
+enum OrderStatus {
+  OPEN
+  FILLED
+  PARTIAL
+  CANCELLED
+}
+
 model Post {
   id        String   @id @default(uuid()) @db.Uuid
   title     String

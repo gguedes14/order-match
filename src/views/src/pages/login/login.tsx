@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { Input } from "../../components/input/input";
 import { Button } from "../../components/button/button";
@@ -36,7 +36,9 @@ export function Login() {
         Login
       </Button>
 
-      <p className="text">Criar usuário</p>
+      <Link to="/create" className="text">
+        Criar usuário
+      </Link>
     </div>
   );
 }

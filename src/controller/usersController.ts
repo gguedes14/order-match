@@ -12,7 +12,7 @@ export class UsersController {
       return res.status(201).json(user);
     } catch (error) {
       if (error instanceof AppError) {
-        return res.status(400).json({
+        return res.status(error.statusCode).json({
           message: error.message,
         });
       }

@@ -39,3 +39,8 @@ body {
 .text:visited {
   color: var(--color-text);
 }
+
+.error {
+  color: #ff6b6b;
+  font-size: 14px;
+}

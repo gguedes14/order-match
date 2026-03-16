@@ -7,4 +7,10 @@ export class UsersRepository {
       data,
     });
   }
+
+  static async findByUsername(username: string) {
+    return prisma.user.findUnique({
+      where: { username }
+    });
+  }
 }

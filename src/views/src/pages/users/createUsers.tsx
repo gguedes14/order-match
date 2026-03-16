@@ -14,10 +14,24 @@ import arrowBack from "../../assets/icons/arrow-back.svg";
 
 export function CreateUsers() {
   const [username, setUsername] = useState("");
+  const [error, setError] = useState<string | null>(null);
+
   const navigate = useNavigate();
 
   async function handleCreateUser() {
-    await createUsers(username);
+    setError(null);
+
+    const result = await createUsers(username);
+
+    if (result.status === 409) {
+      setError("Usuário não pode ser criado");
+      return;
+    }
+
+    if (result.status === 500) {
+      setError("Erro inesperado");
+      return;
+    }
 
     navigate("/login");
   }
@@ -41,6 +55,8 @@ export function CreateUsers() {
       <Button onClick={handleCreateUser}>
         Criar usuário
       </Button>
+
+      {error && <p className="error">{error}</p>}
     </div>
   );
 }

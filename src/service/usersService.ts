@@ -1,10 +1,17 @@
 import { Prisma } from "@prisma/client";
 import { UsersRepository } from "../repository/usersRepository";
+import { AppError } from "../errors/apiError";
 
 export class UsersService {
   static async createUser(data: Prisma.UserCreateInput) {
-    await UsersRepository.createUser(data)
+    const findUser = await UsersRepository.findByUsername(data.username);
 
-    return 'User created with successfully'
+    if (findUser) {
+      throw new AppError(409, "User cannot be created");
+    }
+
+    await UsersRepository.createUser(data);
+
+    return 'User created with successfully';
   }
 }

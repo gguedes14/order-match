@@ -1,9 +1,9 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { verify } from 'jsonwebtoken';
-import { AppError } from '../errors/apiError';
+import { AuthRequest } from '../types/authRequest';
 
 export function JwtAuthenticate(
-  request: Request,
+  request: AuthRequest,
   response: Response,
   next: NextFunction,
 ): void {
@@ -11,18 +11,22 @@ export function JwtAuthenticate(
 
   if (!header) {
     response.status(401).send('Access token not found');
-    return
+    return;
   }
 
   const [, token] = header.split(' ');
 
   try {
-    verify(token, process.env.JWT_TOKEN || '');
+    const decoded = verify(token, process.env.JWT_TOKEN || '') as {
+      id: string;
+    };
+
+    request.user = {
+      id: decoded.id,
+    };
 
     return next();
-  } catch(error) {
-    if (error instanceof AppError) {
-      response.status(401).send('Unauthorized');
-    }
+  } catch (error) {
+    response.status(401).send('Unauthorized');
   }
 }

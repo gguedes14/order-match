@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
-import { UsersRepository } from "../repository/usersRepository";
-import { AppError } from "../errors/apiError";
+import { UsersRepository } from "../../repository/users/usersRepository";
+import { AppError } from "../../errors/apiError";
 
 export class UsersService {
   static async createUser(data: Prisma.UserCreateInput) {

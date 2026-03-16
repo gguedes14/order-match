@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { UsersService } from "../service/usersService";
-import { AppError } from '../errors/apiError';
+import { UsersService } from "../../service/users/usersService";
+import { AppError } from '../../errors/apiError';
 
 export class UsersController {
   static async createUser(req: Request, res: Response) {

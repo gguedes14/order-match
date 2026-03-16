@@ -1,28 +1,8 @@
-/*
-  Warnings:
+-- CreateEnum
+CREATE TYPE "OrderType" AS ENUM ('BUY', 'SELL');
 
-  - You are about to drop the `Order` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Trade` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `User` table. If the table is not empty, all the data it contains will be lost.
-
-*/
--- DropForeignKey
-ALTER TABLE "Order" DROP CONSTRAINT "Order_userId_fkey";
-
--- DropForeignKey
-ALTER TABLE "Trade" DROP CONSTRAINT "Trade_buyOrderId_fkey";
-
--- DropForeignKey
-ALTER TABLE "Trade" DROP CONSTRAINT "Trade_sellOrderId_fkey";
-
--- DropTable
-DROP TABLE "Order";
-
--- DropTable
-DROP TABLE "Trade";
-
--- DropTable
-DROP TABLE "User";
+-- CreateEnum
+CREATE TYPE "OrderStatus" AS ENUM ('OPEN', 'FILLED', 'PARTIAL', 'CANCELLED');
 
 -- CreateTable
 CREATE TABLE "users" (

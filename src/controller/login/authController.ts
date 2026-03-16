@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { AuthService } from '../service/authService';
-import { AppError } from '../errors/apiError';
+import { AuthService } from '../../service/login/authService';
+import { AppError } from '../../errors/apiError';
 
 export class AuthController {
   static async authenticate(req: Request, res: Response) {

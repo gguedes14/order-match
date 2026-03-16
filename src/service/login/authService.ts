@@ -1,7 +1,7 @@
-import { AuthRepository } from "../repository/authRepository";
+import { AuthRepository } from "../../repository/login/authRepository";
 import { sign } from "jsonwebtoken";
-import { AppError } from "../errors/apiError";
-import { HttpStatus } from "../errors/enum/httpStatus";
+import { AppError } from "../../errors/apiError";
+import { HttpStatus } from "../../errors/enum/httpStatus";
 
 export class AuthService {
   static async login(username: string) {
@@ -18,6 +18,7 @@ export class AuthService {
     }
 
     const accessToken = sign({
+      id: userLogin.id,
       userName: userLogin.username
     }, jwtSecret, {
       expiresIn: 86400

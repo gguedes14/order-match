@@ -91,4 +91,26 @@ export class MatchingRepository {
       },
     });
   }
+
+  static async updateUserBalance(
+    tx: TransactionClient,
+    userId: string,
+    data: {
+      usd?: {
+        increment?: Prisma.Decimal;
+        decrement?: Prisma.Decimal;
+      };
+      btc?: {
+        increment?: Prisma.Decimal;
+        decrement?: Prisma.Decimal;
+      };
+    }
+  ) {
+    return tx.user.update({
+      where: {
+        id: userId,
+      },
+      data,
+    });
+  }
 }

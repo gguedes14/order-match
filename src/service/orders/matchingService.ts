@@ -34,14 +34,32 @@ export class MatchingService {
         Number(matchedOrder.remaining)
       );
 
-      const tradePrice = matchedOrder.price;
+      const tradePrice = Number(matchedOrder.price);
+      const total = matchedAmount * tradePrice;
+
+      const buyUserId =
+        order.type === OrderType.BUY ? order.userId : matchedOrder.userId;
+
+      const sellUserId =
+        order.type === OrderType.SELL ? order.userId : matchedOrder.userId;
 
       await MatchingRepository.createTrade(tx, {
-        price: tradePrice,
+        price: new Prisma.Decimal(tradePrice),
         amount: new Prisma.Decimal(matchedAmount),
         buyOrderId: order.type === OrderType.BUY ? order.id : matchedOrder.id,
         sellOrderId: order.type === OrderType.SELL ? order.id : matchedOrder.id,
       });
+
+      await Promise.all([
+        MatchingRepository.updateUserBalance(tx, buyUserId, {
+          usd: { decrement: new Prisma.Decimal(total) },
+          btc: { increment: new Prisma.Decimal(matchedAmount) },
+        }),
+        MatchingRepository.updateUserBalance(tx, sellUserId, {
+          btc: { decrement: new Prisma.Decimal(matchedAmount) },
+          usd: { increment: new Prisma.Decimal(total) },
+        }),
+      ]);
 
       const orderRemaining = Number(order.remaining) - matchedAmount;
       const matchedOrderRemaining = Number(matchedOrder.remaining) - matchedAmount;

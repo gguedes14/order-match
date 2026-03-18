@@ -1,0 +1,46 @@
+import { Prisma, OrderType, OrderStatus } from "@prisma/client";
+import { AppError } from "../../errors/apiError";
+import { OrdersRepository } from "../../repository/orders/orderRepository";
+import { CreateOrderDTO } from "../../dto/ordersDto"
+import { UsersRepository } from "../../repository/users/usersRepository";
+
+export class OrdersService {
+  static async createOrder(data: CreateOrderDTO) {
+    if (data.amount <= 0) {
+      throw new AppError(400, "Amount must be greater than zero");
+    }
+
+    if (data.price <= 0) {
+      throw new AppError(400, "Price must be greater than zero");
+    }
+
+    const user = await UsersRepository.getUserBalance(data.userId);
+
+    if (!user) {
+      throw new AppError(404, "User not found");
+    }
+
+    if (data.type === OrderType.BUY) {
+      const total = data.amount * data.price;
+
+      if (Number(user.usd) < total) {
+        throw new AppError(400, "Insufficient USD balance");
+      }
+    }
+
+    if (data.type === OrderType.SELL) {
+      if (Number(user.btc) < data.amount) {
+        throw new AppError(400, "Insufficient BTC balance");
+      }
+    }
+
+    return OrdersRepository.createOrder({
+      userId: data.userId,
+      type: data.type,
+      amount: new Prisma.Decimal(data.amount),
+      price: new Prisma.Decimal(data.price),
+      remaining: new Prisma.Decimal(data.amount),
+      status: OrderStatus.OPEN,
+    });
+  }
+}

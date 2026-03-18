@@ -3,6 +3,7 @@ import { AppError } from "../../errors/apiError";
 import { OrdersRepository } from "../../repository/orders/orderRepository";
 import { CreateOrderDTO } from "../../dto/ordersDto"
 import { UsersRepository } from "../../repository/users/usersRepository";
+import { MatchingService } from "./matchingService";
 
 export class OrdersService {
   static async createOrder(data: CreateOrderDTO) {
@@ -34,7 +35,7 @@ export class OrdersService {
       }
     }
 
-    return OrdersRepository.createOrder({
+    const order = await OrdersRepository.createOrder({
       userId: data.userId,
       type: data.type,
       amount: new Prisma.Decimal(data.amount),
@@ -42,5 +43,9 @@ export class OrdersService {
       remaining: new Prisma.Decimal(data.amount),
       status: OrderStatus.OPEN,
     });
+
+    await MatchingService.executeMatching(order.id);
+
+    return order;
   }
 }

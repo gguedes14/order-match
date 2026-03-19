@@ -1,5 +1,6 @@
 import { Prisma, User } from "@prisma/client";
 import { prisma } from "../../database/prisma";
+import { TransactionClient } from "../../types/transactions";
 
 export class UsersRepository {
   static async createUser(data: Prisma.UserCreateInput): Promise<User> {
@@ -23,6 +24,28 @@ export class UsersRepository {
         usd: true,
         btc: true,
       }
+    });
+  }
+
+  static async updateUserBalance(
+    tx: TransactionClient,
+    userId: string,
+    data: {
+      usd?: {
+        increment?: Prisma.Decimal;
+        decrement?: Prisma.Decimal;
+      };
+      btc?: {
+        increment?: Prisma.Decimal;
+        decrement?: Prisma.Decimal;
+      };
+    }
+  ) {
+    return tx.user.update({
+      where: {
+        id: userId,
+      },
+      data,
     });
   }
 }

@@ -1,9 +1,5 @@
-import { Prisma, PrismaClient, OrderStatus, OrderType } from "@prisma/client";
-
-type TransactionClient = Omit<
-  PrismaClient,
-  "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends"
->;
+import { Prisma, OrderStatus, OrderType } from "@prisma/client";
+import { TransactionClient } from "../../types/transactions";
 
 export class MatchingRepository {
   static async findOrderById(tx: TransactionClient, orderId: string) {
@@ -14,9 +10,20 @@ export class MatchingRepository {
     });
   }
 
-  static async findBestSellMatch(tx: TransactionClient, price: Prisma.Decimal) {
+  static async findBestSellMatch(
+    tx: TransactionClient,
+    price: Prisma.Decimal,
+    orderId: string,
+    userId: string
+  ) {
     return tx.order.findFirst({
       where: {
+        id: {
+          not: orderId,
+        },
+        userId: {
+          not: userId,
+        },
         type: OrderType.SELL,
         status: {
           in: [OrderStatus.OPEN, OrderStatus.PARTIAL],
@@ -38,10 +45,18 @@ export class MatchingRepository {
 
   static async findBestBuyMatch(
     tx: TransactionClient,
-    price: Prisma.Decimal
+    price: Prisma.Decimal,
+    orderId: string,
+    userId: string
   ) {
     return tx.order.findFirst({
       where: {
+        id: {
+          not: orderId,
+        },
+        userId: {
+          not: userId,
+        },
         type: OrderType.BUY,
         status: {
           in: [OrderStatus.OPEN, OrderStatus.PARTIAL],
@@ -89,28 +104,6 @@ export class MatchingRepository {
         remaining,
         status,
       },
-    });
-  }
-
-  static async updateUserBalance(
-    tx: TransactionClient,
-    userId: string,
-    data: {
-      usd?: {
-        increment?: Prisma.Decimal;
-        decrement?: Prisma.Decimal;
-      };
-      btc?: {
-        increment?: Prisma.Decimal;
-        decrement?: Prisma.Decimal;
-      };
-    }
-  ) {
-    return tx.user.update({
-      where: {
-        id: userId,
-      },
-      data,
     });
   }
 }

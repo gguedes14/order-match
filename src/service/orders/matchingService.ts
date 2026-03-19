@@ -1,6 +1,7 @@
 import { Prisma, OrderStatus, OrderType } from "@prisma/client";
 import { prisma } from "../../database/prisma";
 import { MatchingRepository } from "../../repository/orders/matchingRepository";
+import { UsersRepository } from "../../repository/users/usersRepository";
 
 export class MatchingService {
   static async executeMatching(orderId: string) {
@@ -18,11 +19,11 @@ export class MatchingService {
       let matchedOrder = null;
 
       if (order.type === OrderType.BUY) {
-        matchedOrder = await MatchingRepository.findBestSellMatch(tx, order.price);
+        matchedOrder = await MatchingRepository.findBestSellMatch(tx, order.price, order.id, order.userId);
       }
 
       if (order.type === OrderType.SELL) {
-        matchedOrder = await MatchingRepository.findBestBuyMatch(tx, order.price);
+        matchedOrder = await MatchingRepository.findBestBuyMatch(tx, order.price, order.id, order.userId);
       }
 
       if (!matchedOrder) {
@@ -51,11 +52,11 @@ export class MatchingService {
       });
 
       await Promise.all([
-        MatchingRepository.updateUserBalance(tx, buyUserId, {
+        UsersRepository.updateUserBalance(tx, buyUserId, {
           usd: { decrement: new Prisma.Decimal(total) },
           btc: { increment: new Prisma.Decimal(matchedAmount) },
         }),
-        MatchingRepository.updateUserBalance(tx, sellUserId, {
+        UsersRepository.updateUserBalance(tx, sellUserId, {
           btc: { decrement: new Prisma.Decimal(matchedAmount) },
           usd: { increment: new Prisma.Decimal(total) },
         }),
@@ -64,19 +65,20 @@ export class MatchingService {
       const orderRemaining = Number(order.remaining) - matchedAmount;
       const matchedOrderRemaining = Number(matchedOrder.remaining) - matchedAmount;
 
-      await MatchingRepository.updateOrderAfterMatch(
-        tx,
-        order.id,
-        new Prisma.Decimal(orderRemaining),
-        orderRemaining === 0 ? OrderStatus.FILLED : OrderStatus.PARTIAL
-      );
-
-      await MatchingRepository.updateOrderAfterMatch(
-        tx,
-        matchedOrder.id,
-        new Prisma.Decimal(matchedOrderRemaining),
-        matchedOrderRemaining === 0 ? OrderStatus.FILLED : OrderStatus.PARTIAL
-      );
+      await Promise.all([
+        MatchingRepository.updateOrderAfterMatch(
+          tx,
+          order.id,
+          new Prisma.Decimal(orderRemaining),
+          orderRemaining === 0 ? OrderStatus.FILLED : OrderStatus.PARTIAL
+        ),
+        MatchingRepository.updateOrderAfterMatch(
+          tx,
+          matchedOrder.id,
+          new Prisma.Decimal(matchedOrderRemaining),
+          matchedOrderRemaining === 0 ? OrderStatus.FILLED : OrderStatus.PARTIAL
+        ),
+      ]);
     });
   }
 }

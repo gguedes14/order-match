@@ -48,4 +48,10 @@ export class OrdersService {
 
     return order;
   }
+
+  static async getActiveOrder(userId: string) {
+    const activeOrders = await OrdersRepository.findActiveOrdersByUserId(userId);
+
+    return activeOrders;
+  }
 }

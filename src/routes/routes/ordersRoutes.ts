@@ -9,5 +9,6 @@ const ordersRouter = Router();
 ordersRouter.get('/stats', JwtAuthenticate, TradesController.getStats);
 ordersRouter.get('/trades', JwtAuthenticate, TradesController.getLatestTrade);
 ordersRouter.post('/trades', JwtAuthenticate, OrdersController.createOrders);
+ordersRouter.get('/active', JwtAuthenticate, OrdersController.getActiveOrders);
 
 export { ordersRouter };

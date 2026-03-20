@@ -54,4 +54,27 @@ export class OrdersController {
       }
     }
   }
+
+  static async cancelOrder(req: AuthRequest, res: Response) {
+    const userId = req.user?.id;
+    const { id } = req.params;
+
+    if (!userId) {
+      return res.status(401).json({
+        message: "Unauthorized",
+      });
+    }
+
+    try {
+      const cancelOrder = await OrdersService.cancelOrder(userId, id);
+
+      return res.status(200).json(cancelOrder);
+    } catch (error) {
+      if (error instanceof AppError) {
+        return res.status(error.statusCode).json({
+          message: error.message,
+        });
+      }
+    }
+  }
 }

@@ -30,4 +30,23 @@ export class OrdersRepository {
       },
     });
   }
+
+  static async findOrderById(orderId: string) {
+    return prisma.order.findUnique({
+      where: {
+        id: orderId,
+      }
+    });
+  }
+
+  static async cancelOrder(orderId: string) {
+    return prisma.order.update({
+      where: {
+        id: orderId,
+      },
+      data: {
+        status: OrderStatus.CANCELLED,
+      },
+    });
+  }
 }

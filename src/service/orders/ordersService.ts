@@ -54,4 +54,27 @@ export class OrdersService {
 
     return activeOrders;
   }
+
+  static async cancelOrder(userId: string, orderId: string) {
+    const findOrder = await OrdersRepository.findOrderById(orderId);
+
+    if (!findOrder) {
+      throw new AppError(404, "Order not found");
+    }
+
+    if (findOrder.userId !== userId) {
+      throw new AppError(403, "Cannot cancel this order");
+    }
+
+    if (
+      findOrder.status !== OrderStatus.OPEN &&
+      findOrder.status !== OrderStatus.PARTIAL
+    ) {
+      throw new AppError(400, "Order cannot be cancelled");
+    }
+
+    const cancelOrder = await OrdersRepository.cancelOrder(orderId)
+
+    return cancelOrder;
+  }
 }
